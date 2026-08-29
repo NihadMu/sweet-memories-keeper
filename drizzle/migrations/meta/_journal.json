@@ -8,6 +8,13 @@
       "when": 1788038287687,
       "tag": "0000_course_users_and_progress",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788038756964,
+      "tag": "0001_course_submissions",
+      "breakpoints": true
     }
   ]
 }

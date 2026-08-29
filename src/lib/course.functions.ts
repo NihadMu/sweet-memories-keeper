@@ -52,3 +52,43 @@ export const getAdminOverview = createServerFn({ method: "POST" })
     if (!session.admin) throw new Error("Bu sayfaya erişim yetkiniz yok.");
     return adminOverview();
   });
+
+export const submitTask = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        token: z.string(),
+        lessonId: z.string(),
+        content: z.string().min(3).max(5000),
+        link: z.string().max(500).optional(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data }) => {
+    const session = requireSession(data.token);
+    const { createSubmission } = await import("./course.server");
+    return createSubmission({
+      userId: session.uid,
+      username: session.username,
+      lessonId: data.lessonId,
+      content: data.content,
+      link: data.link,
+    });
+  });
+
+export const getMySubmissions = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => z.object({ token: z.string() }).parse(data))
+  .handler(async ({ data }) => {
+    const session = requireSession(data.token);
+    const { listMySubmissions } = await import("./course.server");
+    return listMySubmissions(session.uid);
+  });
+
+export const getAdminSubmissions = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => z.object({ token: z.string() }).parse(data))
+  .handler(async ({ data }) => {
+    const session = requireSession(data.token);
+    if (!session.admin) throw new Error("Bu sayfaya erişim yetkiniz yok.");
+    const { adminSubmissions } = await import("./course.server");
+    return adminSubmissions();
+  });

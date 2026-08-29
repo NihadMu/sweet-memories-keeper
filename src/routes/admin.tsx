@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 
 import { ALL_LESSONS, COURSE_TITLE, formatDuration } from "@/lib/course";
-import { getAdminOverview } from "@/lib/course.functions";
+import { getAdminOverview, getAdminSubmissions } from "@/lib/course.functions";
 import { useSession } from "@/lib/useSession";
 
 export const Route = createFileRoute("/admin")({
@@ -21,6 +21,7 @@ export const Route = createFileRoute("/admin")({
 });
 
 type Overview = Awaited<ReturnType<typeof getAdminOverview>>;
+type Submissions = Awaited<ReturnType<typeof getAdminSubmissions>>;
 
 function AdminPage() {
   const { session, ready, clear } = useSession();
@@ -28,10 +29,16 @@ function AdminPage() {
   const [rows, setRows] = useState<Overview>([]);
   const [error, setError] = useState<string | null>(null);
   const [openUser, setOpenUser] = useState<string | null>(null);
+  const [subs, setSubs] = useState<Submissions>([]);
 
   const load = useCallback(async (token: string) => {
     try {
-      setRows(await getAdminOverview({ data: { token } }));
+      const [overview, submissions] = await Promise.all([
+        getAdminOverview({ data: { token } }),
+        getAdminSubmissions({ data: { token } }),
+      ]);
+      setRows(overview);
+      setSubs(submissions);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Veriler yüklenemedi.");
     }
@@ -65,6 +72,32 @@ function AdminPage() {
 
       <main className="mx-auto max-w-5xl space-y-4 px-4 py-6">
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
+
+        <section className="rounded-xl border border-border bg-card p-5">
+          <h2 className="font-semibold">Gönderilen görevler</h2>
+          {subs.length === 0 ? (
+            <p className="mt-2 text-sm text-muted-foreground">Henüz görev gönderilmedi.</p>
+          ) : (
+            <ul className="mt-3 divide-y divide-border">
+              {subs.map((s) => (
+                <li key={s.id} className="py-3 text-sm">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-medium">{s.username}</span>
+                    <span className="text-muted-foreground">
+                      {s.lessonTitle} · {new Date(s.createdAt).toLocaleString("tr-TR")}
+                    </span>
+                  </div>
+                  <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{s.content}</p>
+                  {s.link ? (
+                    <a href={s.link} target="_blank" rel="noreferrer" className="mt-1 inline-block text-primary underline">
+                      {s.link}
+                    </a>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
         {rows.length === 0 && !error ? (
           <p className="text-sm text-muted-foreground">Henüz öğrenci verisi yok.</p>
         ) : null}

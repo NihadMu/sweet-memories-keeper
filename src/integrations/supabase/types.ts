@@ -52,6 +52,44 @@ export type Database = {
           },
         ]
       }
+      course_submissions: {
+        Row: {
+          content: string
+          created_at: string
+          emailed: boolean
+          id: string
+          lesson_id: string
+          link: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          emailed?: boolean
+          id?: string
+          lesson_id: string
+          link?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          emailed?: boolean
+          id?: string
+          lesson_id?: string
+          link?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_submissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "course_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_users: {
         Row: {
           created_at: string
