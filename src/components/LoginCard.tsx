@@ -26,7 +26,7 @@ export function LoginCard({
       <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-8 shadow-sm">
         <h1 className="text-center text-2xl font-semibold tracking-tight">{COURSE_TITLE}</h1>
         <p className="mt-2 text-center text-sm text-muted-foreground">
-          Devam etmek için giriş yapın.
+          Öğrenciyseniz yalnızca adınızı yazın; ilerlemeniz adınıza kaydedilir.
         </p>
         <form onSubmit={handle} className="mt-6 space-y-4">
           <div className="space-y-1.5">
@@ -44,7 +44,7 @@ export function LoginCard({
           </div>
           <div className="space-y-1.5">
             <label htmlFor="password" className="text-sm font-medium">
-              Parola
+              Parola <span className="font-normal text-muted-foreground">(yalnızca yönetici)</span>
             </label>
             <input
               id="password"
@@ -53,7 +53,6 @@ export function LoginCard({
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
               className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-              required
             />
           </div>
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
