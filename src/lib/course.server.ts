@@ -145,3 +145,85 @@ export async function adminOverview() {
       };
     });
 }
+
+export async function createSubmission(input: {
+  userId: string;
+  username: string;
+  lessonId: string;
+  content: string;
+  link?: string;
+}) {
+  if (!LESSON_IDS.has(input.lessonId)) throw new Error("Geçersiz ders.");
+  const text = input.content.trim();
+  if (text.length < 3) throw new Error("Lütfen görev cevabınızı yazın.");
+  const db = await admin();
+  const lesson = ALL_LESSONS.find((l) => l.id === input.lessonId);
+
+  const { data, error } = await db
+    .from("course_submissions")
+    .insert({
+      user_id: input.userId,
+      lesson_id: input.lessonId,
+      content: text,
+      link: input.link?.trim() || null,
+    })
+    .select("id, created_at")
+    .single();
+  if (error) throw new Error(error.message);
+
+  let emailed = false;
+  try {
+    const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+    const result = await sendTemplateEmail("task-submission", "nihadmushazade@gmail.com", {
+      templateData: {
+        studentName: input.username,
+        lessonTitle: lesson?.title ?? input.lessonId,
+        moduleTitle: lesson?.moduleTitle ?? "",
+        content: text,
+        link: input.link?.trim() || undefined,
+      },
+      idempotencyKey: `task-submission-${data.id}`,
+    });
+    emailed = result.sent;
+  } catch {
+    /* e-posta gönderimi kurulmadıysa görev yine de kaydedilir */
+  }
+
+  if (emailed) await db.from("course_submissions").update({ emailed: true }).eq("id", data.id);
+  return { ok: true as const, emailed };
+}
+
+export async function listMySubmissions(userId: string) {
+  const db = await admin();
+  const { data, error } = await db
+    .from("course_submissions")
+    .select("id, lesson_id, content, link, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+export async function adminSubmissions() {
+  const db = await admin();
+  const [{ data: rows, error }, { data: users, error: uErr }] = await Promise.all([
+    db
+      .from("course_submissions")
+      .select("id, user_id, lesson_id, content, link, created_at")
+      .order("created_at", { ascending: false })
+      .limit(300),
+    db.from("course_users").select("id, username"),
+  ]);
+  if (error) throw new Error(error.message);
+  if (uErr) throw new Error(uErr.message);
+  const names = new Map((users ?? []).map((u) => [u.id, u.username]));
+  return (rows ?? []).map((r) => ({
+    id: r.id,
+    username: names.get(r.user_id) ?? "—",
+    lessonId: r.lesson_id,
+    lessonTitle: ALL_LESSONS.find((l) => l.id === r.lesson_id)?.title ?? r.lesson_id,
+    content: r.content,
+    link: r.link,
+    createdAt: r.created_at,
+  }));
+}
