@@ -92,6 +92,29 @@ function Home() {
     [session, activeLesson, refresh],
   );
 
+  const [completing, setCompleting] = useState(false);
+
+  async function markCompleted() {
+    if (!session || progress[activeLesson.id]?.completed) return;
+    setCompleting(true);
+    try {
+      await saveProgress({
+        data: {
+          token: session.token,
+          lessonId: activeLesson.id,
+          secondsWatched: activeLesson.durationSeconds,
+          durationSeconds: activeLesson.durationSeconds,
+          completed: true,
+        },
+      });
+      await refresh(session.token);
+    } catch {
+      /* bir sonraki denemede tekrarlanır */
+    } finally {
+      setCompleting(false);
+    }
+  }
+
   function handleTimeUpdate() {
     const video = videoRef.current;
     if (!video) return;
@@ -160,13 +183,21 @@ function Home() {
               {ALL_LESSONS.find((l) => l.id === activeLesson.id)?.moduleTitle}
             </p>
             <h2 className="mt-1 text-xl font-semibold tracking-tight">{activeLesson.title}</h2>
-            <div className="mt-3 flex items-center gap-3 text-sm text-muted-foreground">
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <span>{formatDuration(activeLesson.durationSeconds)}</span>
               {progress[activeLesson.id]?.completed ? (
                 <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
                   Tamamlandı
                 </span>
-              ) : null}
+              ) : (
+                <button
+                  onClick={() => void markCompleted()}
+                  disabled={completing}
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
+                >
+                  {completing ? "Kaydediliyor…" : "Bölümü Tamamla"}
+                </button>
+              )}
             </div>
             {loadError ? <p className="mt-3 text-sm text-destructive">{loadError}</p> : null}
           </div>
