@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { LoginCard } from "@/components/LoginCard";
 import { ALL_LESSONS, COURSE_TITLE, MODULES, formatDuration } from "@/lib/course";
-import { getMyProgress, login, saveProgress } from "@/lib/course.functions";
+import { getMyProgress, getMySubmissions, login, saveProgress, submitTask } from "@/lib/course.functions";
 import { useSession } from "@/lib/useSession";
 
 export const Route = createFileRoute("/")({
@@ -93,6 +93,51 @@ function Home() {
   );
 
   const [completing, setCompleting] = useState(false);
+  const [taskText, setTaskText] = useState("");
+  const [taskLink, setTaskLink] = useState("");
+  const [sending, setSending] = useState(false);
+  const [taskMsg, setTaskMsg] = useState<string | null>(null);
+  const [mySubs, setMySubs] = useState<Awaited<ReturnType<typeof getMySubmissions>>>([]);
+
+  const refreshSubs = useCallback(async (token: string) => {
+    try {
+      setMySubs(await getMySubmissions({ data: { token } }));
+    } catch {
+      /* yoksay */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!session || session.admin) return;
+    void refreshSubs(session.token);
+  }, [session, refreshSubs]);
+
+  async function sendTask() {
+    if (!session || taskText.trim().length < 3) {
+      setTaskMsg("Lütfen görev cevabınızı yazın.");
+      return;
+    }
+    setSending(true);
+    setTaskMsg(null);
+    try {
+      await submitTask({
+        data: {
+          token: session.token,
+          lessonId: activeLesson.id,
+          content: taskText.trim(),
+          link: taskLink.trim() || undefined,
+        },
+      });
+      setTaskText("");
+      setTaskLink("");
+      setTaskMsg("Göreviniz gönderildi.");
+      await refreshSubs(session.token);
+    } catch (e) {
+      setTaskMsg(e instanceof Error ? e.message : "Görev gönderilemedi.");
+    } finally {
+      setSending(false);
+    }
+  }
 
   async function markCompleted() {
     if (!session || progress[activeLesson.id]?.completed) return;
@@ -200,6 +245,50 @@ function Home() {
               )}
             </div>
             {loadError ? <p className="mt-3 text-sm text-destructive">{loadError}</p> : null}
+          </div>
+
+          <div className="mt-4 rounded-xl border border-border bg-card p-5">
+            <h3 className="font-semibold">Görevini gönder</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Videonun sonundaki görevi tamamladıktan sonra cevabını buradan gönder.
+            </p>
+            <textarea
+              value={taskText}
+              onChange={(e) => setTaskText(e.target.value)}
+              rows={5}
+              placeholder="Görev cevabın…"
+              className="mt-3 w-full rounded-lg border border-border bg-background p-3 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+            />
+            <input
+              value={taskLink}
+              onChange={(e) => setTaskLink(e.target.value)}
+              placeholder="Varsa bağlantı (Drive, Loom, dosya…)"
+              className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+            />
+            <div className="mt-3 flex items-center gap-3">
+              <button
+                onClick={() => void sendTask()}
+                disabled={sending}
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
+              >
+                {sending ? "Gönderiliyor…" : "Görevi Gönder"}
+              </button>
+              {taskMsg ? <span className="text-sm text-muted-foreground">{taskMsg}</span> : null}
+            </div>
+
+            {mySubs.length > 0 ? (
+              <ul className="mt-4 divide-y divide-border border-t border-border text-sm">
+                {mySubs.slice(0, 5).map((s) => (
+                  <li key={s.id} className="py-2">
+                    <span className="text-muted-foreground">
+                      {new Date(s.created_at).toLocaleString("tr-TR")} ·{" "}
+                      {ALL_LESSONS.find((l) => l.id === s.lesson_id)?.title ?? s.lesson_id}
+                    </span>
+                    <p className="whitespace-pre-wrap">{s.content}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </div>
         </section>
 
