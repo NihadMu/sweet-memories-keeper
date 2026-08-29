@@ -11,7 +11,7 @@ import {
 
 export const login = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) =>
-    z.object({ username: z.string().min(1), password: z.string().min(1) }).parse(data),
+    z.object({ username: z.string().min(1), password: z.string().optional().default("") }).parse(data),
   )
   .handler(async ({ data }) => loginUser(data.username, data.password));
 

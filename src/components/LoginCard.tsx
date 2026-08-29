@@ -31,7 +31,7 @@ export function LoginCard({
         <form onSubmit={handle} className="mt-6 space-y-4">
           <div className="space-y-1.5">
             <label htmlFor="username" className="text-sm font-medium">
-              Kullanıcı adı
+              Adınız
             </label>
             <input
               id="username"

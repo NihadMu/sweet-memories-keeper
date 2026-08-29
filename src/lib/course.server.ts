@@ -10,15 +10,45 @@ async function admin() {
 
 export async function loginUser(username: string, password: string) {
   const db = await admin();
-  const { data, error } = await db
+  const name = username.trim();
+  if (!name) return { ok: false as const, error: "Lütfen adınızı girin." };
+
+  let { data, error } = await db
     .from("course_users")
     .select("id, username, password_hash, is_admin")
-    .ilike("username", username.trim())
+    .ilike("username", name)
     .maybeSingle();
   if (error) throw new Error(error.message);
-  if (!data || data.password_hash !== hashPassword(password)) {
-    return { ok: false as const, error: "Kullanıcı adı veya parola hatalı." };
+
+  if (!data) {
+    // Öğrenciler yalnızca adlarıyla giriş yapar: hesap otomatik oluşturulur.
+    const created = await db
+      .from("course_users")
+      .insert({ username: name, password_hash: "", is_admin: false })
+      .select("id, username, password_hash, is_admin")
+      .single();
+    if (created.error || !created.data) {
+      // Eşzamanlı kayıt durumunda tekrar oku.
+      const retry = await db
+        .from("course_users")
+        .select("id, username, password_hash, is_admin")
+        .ilike("username", name)
+        .maybeSingle();
+      if (retry.error || !retry.data) {
+        throw new Error(created.error?.message ?? retry.error?.message ?? "Kayıt oluşturulamadı.");
+      }
+      data = retry.data;
+    } else {
+      data = created.data;
+    }
   }
+
+  if (data.is_admin) {
+    if (!password || data.password_hash !== hashPassword(password)) {
+      return { ok: false as const, error: "Kullanıcı adı veya parola hatalı." };
+    }
+  }
+
   const token = signSession({
     uid: data.id,
     username: data.username,
