@@ -151,7 +151,7 @@ export async function createSubmission(input: {
   username: string;
   lessonId: string;
   content: string;
-  link?: string;
+  link?: string | undefined;
 }) {
   if (!LESSON_IDS.has(input.lessonId)) throw new Error("Geçersiz ders.");
   const text = input.content.trim();
