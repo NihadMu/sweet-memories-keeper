@@ -43,7 +43,8 @@ export async function loginUser(username: string, password: string) {
     }
   }
 
-  if (data.is_admin) {
+  if (data.password_hash) {
+    // Parolası tanımlı hesaplar (yönetici ve bazı öğrenciler) parola ile girer.
     if (!password || data.password_hash !== hashPassword(password)) {
       return { ok: false as const, error: "Kullanıcı adı veya parola hatalı." };
     }

@@ -44,7 +44,7 @@ export function LoginCard({
           </div>
           <div className="space-y-1.5">
             <label htmlFor="password" className="text-sm font-medium">
-              Parola <span className="font-normal text-muted-foreground">(yalnızca yönetici)</span>
+              Parola <span className="font-normal text-muted-foreground">(hesabınızda tanımlıysa)</span>
             </label>
             <input
               id="password"
