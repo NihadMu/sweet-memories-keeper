@@ -171,23 +171,8 @@ export async function createSubmission(input: {
     .single();
   if (error) throw new Error(error.message);
 
-  let emailed = false;
-  try {
-    const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-    const result = await sendTemplateEmail("task-submission", "nihadmushazade@gmail.com", {
-      templateData: {
-        studentName: input.username,
-        lessonTitle: lesson?.title ?? input.lessonId,
-        moduleTitle: lesson?.moduleTitle ?? "",
-        content: text,
-        link: input.link?.trim() || undefined,
-      },
-      idempotencyKey: `task-submission-${data.id}`,
-    });
-    emailed = result.sent;
-  } catch {
-    /* e-posta gönderimi kurulmadıysa görev yine de kaydedilir */
-  }
+  // E-posta bildirimi: gönderen alan adı kurulduktan sonra etkinleşir.
+  const emailed = false;
 
   if (emailed) await db.from("course_submissions").update({ emailed: true }).eq("id", data.id);
   return { ok: true as const, emailed };
