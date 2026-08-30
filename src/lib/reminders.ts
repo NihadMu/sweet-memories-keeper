@@ -38,13 +38,27 @@ function pickMessage(seed: string) {
   return REMINDER_MESSAGES[hash % REMINDER_MESSAGES.length]!;
 }
 
-/** Şu an geçilmiş en son hatırlatma dilimi (ör. "2026-08-30-15"). */
+/** Şu an geçilmiş en son hatırlatma dilimi (ör. "2026-08-30-14:00"). */
 function currentSlot(now = new Date()) {
-  const hours = REMINDER_HOURS.filter((h) => now.getHours() >= h);
-  if (hours.length === 0) return null;
-  const hour = hours[hours.length - 1]!;
-  const day = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-  return `${day}-${hour}`;
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Baku",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(now);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  const day = `${get("year")}-${get("month")}-${get("day")}`;
+  const minutes = Number(get("hour")) * 60 + Number(get("minute"));
+  let last: string | null = null;
+  for (const time of REMINDER_TIMES) {
+    const [h, m] = time.split(":").map(Number) as [number, number];
+    if (h! * 60 + m! <= minutes) last = time;
+  }
+  if (!last) return null;
+  return `${day}-${last}`;
 }
 
 export function useDailyReminders(username: string) {
