@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LoginCard } from "@/components/LoginCard";
 import { ALL_LESSONS, COURSE_TITLE, MODULES, formatDuration } from "@/lib/course";
 import { getMyProgress, getMySubmissions, login, saveProgress, submitTask } from "@/lib/course.functions";
-import { REMINDER_HOURS, useDailyReminders } from "@/lib/reminders";
+import { useDailyReminders } from "@/lib/reminders";
 import { useSession } from "@/lib/useSession";
 
 export const Route = createFileRoute("/")({
@@ -206,7 +206,7 @@ function Home() {
                <>
                  <button
                    onClick={() => void reminders.toggle()}
-                   title={`Günde ${REMINDER_HOURS.length} kez hatırlatma (${REMINDER_HOURS.map((h) => `${h}:00`).join(", ")})`}
+                   title={`Günde 3 kez hatırlatma (08:30, 14:00, 23:15)`}
                    className={`rounded-md border px-3 py-1.5 transition-colors ${
                      reminders.enabled
                        ? "border-primary bg-primary/10 text-primary"

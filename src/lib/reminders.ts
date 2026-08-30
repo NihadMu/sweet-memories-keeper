@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
-/** Günün 3 farklı saatinde hatırlatma (yerel saat). */
-export const REMINDER_HOURS = [10, 15, 20];
+/** Hatırlatma saatleri — Azerbaycan saatiyle (UTC+4). */
+export const REMINDER_TIMES = ["08:30", "14:00", "23:15"];
 
 export const REMINDER_MESSAGES: { title: string; body: string }[] = [
   { title: "Bugün bir bölüm izleyelim mi?", body: "10 dakikan varsa yeni bir derse başlayabilirsin." },
@@ -38,13 +38,27 @@ function pickMessage(seed: string) {
   return REMINDER_MESSAGES[hash % REMINDER_MESSAGES.length]!;
 }
 
-/** Şu an geçilmiş en son hatırlatma dilimi (ör. "2026-08-30-15"). */
+/** Şu an geçilmiş en son hatırlatma dilimi (ör. "2026-08-30-14:00"). */
 function currentSlot(now = new Date()) {
-  const hours = REMINDER_HOURS.filter((h) => now.getHours() >= h);
-  if (hours.length === 0) return null;
-  const hour = hours[hours.length - 1]!;
-  const day = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-  return `${day}-${hour}`;
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Baku",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(now);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  const day = `${get("year")}-${get("month")}-${get("day")}`;
+  const minutes = Number(get("hour")) * 60 + Number(get("minute"));
+  let last: string | null = null;
+  for (const time of REMINDER_TIMES) {
+    const [h, m] = time.split(":").map(Number) as [number, number];
+    if (h! * 60 + m! <= minutes) last = time;
+  }
+  if (!last) return null;
+  return `${day}-${last}`;
 }
 
 export function useDailyReminders(username: string) {
@@ -95,7 +109,7 @@ export function useDailyReminders(username: string) {
     write({ enabled: true, lastSlot: currentSlot() });
     setEnabled(true);
     new Notification("Hatırlatmalar açıldı", {
-      body: `Her gün ${REMINDER_HOURS.join(":00, ")}:00 saatlerinde seni derse çağıracağız.`,
+      body: `Her gün 08:30, 14:00 ve 23:15'te seni derse çağıracağız.`,
       icon: "/favicon.ico",
     });
   }, [enabled]);
