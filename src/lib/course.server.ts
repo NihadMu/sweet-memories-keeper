@@ -112,7 +112,7 @@ export async function upsertProgress(input: {
 export async function adminOverview() {
   const db = await admin();
   const [{ data: users, error: uErr }, { data: rows, error: pErr }] = await Promise.all([
-    db.from("course_users").select("id, username, is_admin, created_at").order("username"),
+    db.from("course_users").select("id, username, is_admin, phone, created_at").order("username"),
     db.from("course_progress").select("user_id, lesson_id, seconds_watched, duration_seconds, completed, updated_at"),
   ]);
   if (uErr) throw new Error(uErr.message);
