@@ -35,6 +35,7 @@ type ProgressRow = {
 
 function Home() {
   const { session, ready, save, clear } = useSession();
+  const reminders = useDailyReminders(session?.username ?? "ogrenci");
   const navigate = useNavigate();
   const [progress, setProgress] = useState<Record<string, ProgressRow>>({});
   const [activeId, setActiveId] = useState(ALL_LESSONS[0]!.id);
