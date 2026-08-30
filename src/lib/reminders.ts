@@ -109,7 +109,7 @@ export function useDailyReminders(username: string) {
     write({ enabled: true, lastSlot: currentSlot() });
     setEnabled(true);
     new Notification("Hatırlatmalar açıldı", {
-      body: `Her gün ${REMINDER_HOURS.join(":00, ")}:00 saatlerinde seni derse çağıracağız.`,
+      body: `Her gün 08:30, 14:00 ve 23:15'te seni derse çağıracağız.`,
       icon: "/favicon.ico",
     });
   }, [enabled]);
