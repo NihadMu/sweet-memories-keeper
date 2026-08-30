@@ -105,6 +105,10 @@ function AdminPage() {
         {rows.map((row) => {
           const percent = Math.round((row.completedCount / row.totalLessons) * 100);
           const open = openUser === row.userId;
+          const phoneDigits = row.phone?.replace(/[^\d]/g, "") ?? "";
+          const waText = encodeURIComponent(
+            `Salam ${row.username}! 👋 Dersə davam etməyi unutma. Bu gün ${row.completedCount}/${row.totalLessons} dersi tamamlamısan — qaldığın yerdən davam et! 💪`,
+          );
           return (
             <div key={row.userId} className="rounded-xl border border-border bg-card p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -118,12 +122,25 @@ function AdminPage() {
                       : ""}
                   </p>
                 </div>
-                <button
-                  onClick={() => setOpenUser(open ? null : row.userId)}
-                  className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted"
-                >
-                  {open ? "Gizle" : "Detay"}
-                </button>
+                <div className="flex items-center gap-2">
+                  {phoneDigits ? (
+                    <a
+                      href={`https://wa.me/${phoneDigits}?text=${waText}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:opacity-90"
+                      title={`WhatsApp ile hatırlat: ${row.phone}`}
+                    >
+                      WhatsApp'tan hatırlat
+                    </a>
+                  ) : null}
+                  <button
+                    onClick={() => setOpenUser(open ? null : row.userId)}
+                    className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted"
+                  >
+                    {open ? "Gizle" : "Detay"}
+                  </button>
+                </div>
               </div>
               <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted">
                 <div className="h-full rounded-full bg-primary" style={{ width: `${percent}%` }} />
