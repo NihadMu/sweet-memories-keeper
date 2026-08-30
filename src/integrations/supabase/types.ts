@@ -96,6 +96,7 @@ export type Database = {
           id: string
           is_admin: boolean
           password_hash: string
+          phone: string | null
           username: string
         }
         Insert: {
@@ -103,6 +104,7 @@ export type Database = {
           id?: string
           is_admin?: boolean
           password_hash: string
+          phone?: string | null
           username: string
         }
         Update: {
@@ -110,6 +112,7 @@ export type Database = {
           id?: string
           is_admin?: boolean
           password_hash?: string
+          phone?: string | null
           username?: string
         }
         Relationships: []
