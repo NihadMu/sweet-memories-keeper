@@ -131,6 +131,7 @@ export async function adminOverview() {
       return {
         userId: u.id,
         username: u.username,
+        phone: u.phone ?? null,
         totalLessons,
         completedCount: completed.length,
         watchedSeconds: mine.reduce((sum, r) => sum + (r.seconds_watched ?? 0), 0),
