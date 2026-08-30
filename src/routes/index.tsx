@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LoginCard } from "@/components/LoginCard";
 import { ALL_LESSONS, COURSE_TITLE, MODULES, formatDuration } from "@/lib/course";
 import { getMyProgress, getMySubmissions, login, saveProgress, submitTask } from "@/lib/course.functions";
+import { REMINDER_HOURS, useDailyReminders } from "@/lib/reminders";
 import { useSession } from "@/lib/useSession";
 
 export const Route = createFileRoute("/")({
@@ -34,6 +35,7 @@ type ProgressRow = {
 
 function Home() {
   const { session, ready, save, clear } = useSession();
+  const reminders = useDailyReminders(session?.username ?? "ogrenci");
   const navigate = useNavigate();
   const [progress, setProgress] = useState<Record<string, ProgressRow>>({});
   const [activeId, setActiveId] = useState(ALL_LESSONS[0]!.id);
@@ -198,8 +200,21 @@ function Home() {
       <header className="border-b border-border bg-background">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <h1 className="text-lg font-semibold tracking-tight">{COURSE_TITLE}</h1>
-          <div className="flex items-center gap-4 text-sm">
+          <div className="flex items-center gap-3 text-sm">
             <span className="text-muted-foreground">{session.username}</span>
+            {reminders.permission !== "unsupported" ? (
+              <button
+                onClick={() => void reminders.toggle()}
+                title={`Günde ${REMINDER_HOURS.length} kez hatırlatma (${REMINDER_HOURS.map((h) => `${h}:00`).join(", ")})`}
+                className={`rounded-md border px-3 py-1.5 transition-colors ${
+                  reminders.enabled
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border hover:bg-muted"
+                }`}
+              >
+                {reminders.enabled ? "Hatırlatmalar açık" : "Hatırlatmaları aç"}
+              </button>
+            ) : null}
             <button onClick={clear} className="rounded-md border border-border px-3 py-1.5 hover:bg-muted">
               Çıkış
             </button>
