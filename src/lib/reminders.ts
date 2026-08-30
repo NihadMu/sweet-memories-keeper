@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
-/** Günün 3 farklı saatinde hatırlatma (yerel saat). */
-export const REMINDER_HOURS = [10, 15, 20];
+/** Hatırlatma saatleri — Azerbaycan saatiyle (UTC+4). */
+export const REMINDER_TIMES = ["08:30", "14:00", "23:15"];
 
 export const REMINDER_MESSAGES: { title: string; body: string }[] = [
   { title: "Bugün bir bölüm izleyelim mi?", body: "10 dakikan varsa yeni bir derse başlayabilirsin." },
