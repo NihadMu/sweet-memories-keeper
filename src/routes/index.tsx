@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LoginCard } from "@/components/LoginCard";
 import { ALL_LESSONS, COURSE_TITLE, MODULES, formatDuration } from "@/lib/course";
 import { getMyProgress, getMySubmissions, login, saveProgress, submitTask } from "@/lib/course.functions";
-import { REMINDER_HOURS, useDailyReminders } from "@/lib/reminders";
+import { useDailyReminders } from "@/lib/reminders";
 import { useSession } from "@/lib/useSession";
 
 export const Route = createFileRoute("/")({
