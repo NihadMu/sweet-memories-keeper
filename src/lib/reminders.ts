@@ -100,5 +100,24 @@ export function useDailyReminders(username: string) {
     });
   }, [enabled]);
 
-  return { enabled, permission, toggle };
+  /** Deneme amaçlı: farklı mesajlardan 3 bildirimi art arda gönderir. */
+  const sendTest = useCallback(async () => {
+    if (!("Notification" in window)) return;
+    const result = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
+    setPermission(result);
+    if (result !== "granted") return;
+    const base = Math.floor(Math.random() * REMINDER_MESSAGES.length);
+    for (let i = 0; i < 3; i++) {
+      const msg = REMINDER_MESSAGES[(base + i) % REMINDER_MESSAGES.length]!;
+      window.setTimeout(() => {
+        try {
+          new Notification(msg.title, { body: msg.body, icon: "/favicon.ico", tag: `test-${Date.now()}-${i}` });
+        } catch {
+          /* yoksay */
+        }
+      }, i * 1500);
+    }
+  }, []);
+
+  return { enabled, permission, toggle, sendTest };
 }
