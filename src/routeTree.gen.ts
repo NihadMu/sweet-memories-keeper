@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as ApiPublicTelegramCronRouteImport } from './routes/api/public/telegram/cron'
+import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
 import { Route as ApiPublicVideoIdRouteImport } from './routes/api/public/video.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +25,17 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTelegramCronRoute = ApiPublicTelegramCronRouteImport.update({
+  id: '/api/public/telegram/cron',
+  path: '/api/public/telegram/cron',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTelegramWebhookRoute =
+  ApiPublicTelegramWebhookRouteImport.update({
+    id: '/api/public/telegram/webhook',
+    path: '/api/public/telegram/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicVideoIdRoute = ApiPublicVideoIdRouteImport.update({
   id: '/api/public/video/$id',
   path: '/api/public/video/$id',
@@ -32,30 +45,54 @@ const ApiPublicVideoIdRoute = ApiPublicVideoIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/api/public/telegram/cron': typeof ApiPublicTelegramCronRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/video/$id': typeof ApiPublicVideoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/api/public/telegram/cron': typeof ApiPublicTelegramCronRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/video/$id': typeof ApiPublicVideoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/api/public/telegram/cron': typeof ApiPublicTelegramCronRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/video/$id': typeof ApiPublicVideoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/api/public/video/$id'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/api/public/telegram/cron'
+    | '/api/public/telegram/webhook'
+    | '/api/public/video/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/api/public/video/$id'
-  id: '__root__' | '/' | '/admin' | '/api/public/video/$id'
+  to:
+    | '/'
+    | '/admin'
+    | '/api/public/telegram/cron'
+    | '/api/public/telegram/webhook'
+    | '/api/public/video/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/api/public/telegram/cron'
+    | '/api/public/telegram/webhook'
+    | '/api/public/video/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  ApiPublicTelegramCronRoute: typeof ApiPublicTelegramCronRoute
+  ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
   ApiPublicVideoIdRoute: typeof ApiPublicVideoIdRoute
 }
 
@@ -75,6 +112,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/telegram/cron': {
+      id: '/api/public/telegram/cron'
+      path: '/api/public/telegram/cron'
+      fullPath: '/api/public/telegram/cron'
+      preLoaderRoute: typeof ApiPublicTelegramCronRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/telegram/webhook': {
+      id: '/api/public/telegram/webhook'
+      path: '/api/public/telegram/webhook'
+      fullPath: '/api/public/telegram/webhook'
+      preLoaderRoute: typeof ApiPublicTelegramWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/video/$id': {
       id: '/api/public/video/$id'
       path: '/api/public/video/$id'
@@ -88,6 +139,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  ApiPublicTelegramCronRoute: ApiPublicTelegramCronRoute,
+  ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
   ApiPublicVideoIdRoute: ApiPublicVideoIdRoute,
 }
 export const routeTree = rootRouteImport
