@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LoginCard } from "@/components/LoginCard";
 import { ALL_LESSONS, COURSE_TITLE, MODULES, formatDuration } from "@/lib/course";
 import { getMyProgress, getMySubmissions, login, saveProgress, submitTask } from "@/lib/course.functions";
-import { useDailyReminders } from "@/lib/reminders";
 import { useSession } from "@/lib/useSession";
 
 export const Route = createFileRoute("/")({
@@ -35,7 +34,6 @@ type ProgressRow = {
 
 function Home() {
   const { session, ready, save, clear } = useSession();
-  const reminders = useDailyReminders(session?.username ?? "ogrenci");
   const navigate = useNavigate();
   const [progress, setProgress] = useState<Record<string, ProgressRow>>({});
   const [activeId, setActiveId] = useState(ALL_LESSONS[0]!.id);
@@ -202,28 +200,8 @@ function Home() {
           <h1 className="text-lg font-semibold tracking-tight">{COURSE_TITLE}</h1>
           <div className="flex items-center gap-3 text-sm">
             <span className="text-muted-foreground">{session.username}</span>
-             {reminders.permission !== "unsupported" ? (
-               <>
-                 <button
-                   onClick={() => void reminders.toggle()}
-                   title={`Günde 3 kez hatırlatma (08:30, 14:00, 23:15)`}
-                   className={`rounded-md border px-3 py-1.5 transition-colors ${
-                     reminders.enabled
-                       ? "border-primary bg-primary/10 text-primary"
-                       : "border-border hover:bg-muted"
-                   }`}
-                 >
-                   {reminders.enabled ? "Hatırlatmalar açık" : "Hatırlatmaları aç"}
-                 </button>
-                 <button
-                   onClick={() => void reminders.sendTest()}
-                   title="Deneme: 3 farklı bildirim art arda gönderir"
-                   className="rounded-md border border-border px-3 py-1.5 hover:bg-muted"
-                 >
-                   Test bildirimi (3 adet)
-                 </button>
-               </>
-             ) : null}
+            <span className="text-muted-foreground">Hatırlatmalar Telegram botundan otomatik gelir</span>
+
             <button onClick={clear} className="rounded-md border border-border px-3 py-1.5 hover:bg-muted">
               Çıkış
             </button>
