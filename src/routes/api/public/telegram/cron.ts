@@ -41,19 +41,3 @@ async function run(request: Request): Promise<Response> {
   );
   return Response.json({ ok: true, sent: chats.length });
 }
-
-async function sendTelegramMessage(chatId: string, text: string) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  void supabaseAdmin;
-  const token = process.env["TELEGRAM_API_KEY"];
-  if (!token) return;
-  await fetch("https://connector-gateway.lovable.dev/telegram/sendMessage", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env["LOVABLE_API_KEY"]}`,
-      "X-Connection-Api-Key": token,
-    },
-    body: JSON.stringify({ chat_id: chatId, text }),
-  });
-}
