@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { getSupabase } from "@/lib/telegram.server";
+import { getSupabase, sendTelegramMessage } from "@/lib/telegram.server";
 
 const GREETINGS = [
   "Salam! 👋 Ders vaxtıdır — bugünkü dərsini izləməyi unutma!",
@@ -8,17 +8,16 @@ const GREETINGS = [
   "Görevini yoxla ✍️ Bu günkü tapşırığını göndərməyi unutma!",
   "Kiçik addımlar böyük nəticələr gətirir 🚀 Bu gün 10 dəqiqə belə izlə!",
   "Dərs seriyani davam etdir 💪 İzini itirmə, bu gün də irəlilə!",
+  "Davam et! 🎯 Hər dərs səni hədəfə bir addım daha yaxınlaşdırır.",
+  "Bugün də məzuniyyət yoxdur 😄 Dərsini aç və 10 dəqiqə izlə!",
+  "Sən bacarırsan! 💡 Qaldığın yerdən davam et, nəticə göz oxşayacaq.",
 ];
 
-/**
- * Cron (pg_cron) bu endpoint'i düzenli çağırır; her öğrenciye hatırlatma mesajı gider.
- * Güvenlik: x-telegram-cron-secret başlığı veritabanındaki gizli değerle eşleşmelidir.
- */
 export const Route = createFileRoute("/api/public/telegram/cron")({
   server: {
     handlers: {
-      POST: async () => run(),
-      GET: async () => run(),
+      POST: async ({ request }) => run(request),
+      GET: async ({ request }) => run(request),
     },
   },
 });
