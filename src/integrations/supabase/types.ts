@@ -117,6 +117,48 @@ export type Database = {
         }
         Relationships: []
       }
+      telegram_chats: {
+        Row: {
+          assigned_student: string | null
+          chat_id: number
+          created_at: string
+          first_name: string | null
+          telegram_username: string | null
+        }
+        Insert: {
+          assigned_student?: string | null
+          chat_id: number
+          created_at?: string
+          first_name?: string | null
+          telegram_username?: string | null
+        }
+        Update: {
+          assigned_student?: string | null
+          chat_id?: number
+          created_at?: string
+          first_name?: string | null
+          telegram_username?: string | null
+        }
+        Relationships: []
+      }
+      telegram_config: {
+        Row: {
+          created_at: string
+          cron_secret: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          cron_secret: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          cron_secret?: string
+          id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
