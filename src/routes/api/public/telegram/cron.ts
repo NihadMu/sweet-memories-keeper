@@ -23,10 +23,13 @@ export const Route = createFileRoute("/api/public/telegram/cron")({
   },
 });
 
-async function run(): Promise<Response> {
+async function run(request: Request): Promise<Response> {
   const db = await getSupabase();
   const { data: cfg } = await db.from("telegram_config").select("cron_secret").limit(1).maybeSingle();
   if (!cfg) return new Response("Not configured", { status: 500 });
+
+  const provided = request.headers.get("x-cron-secret") ?? "";
+  if (provided !== cfg.cron_secret) return new Response("Unauthorized", { status: 401 });
 
   const { data: chats, error } = await db.from("telegram_chats").select("chat_id");
   if (error || !chats || chats.length === 0) return Response.json({ ok: true, sent: 0 });
