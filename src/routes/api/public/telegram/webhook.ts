@@ -26,7 +26,8 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
         const chat = update.message?.chat;
         if (!chat?.id) return Response.json({ ok: true });
 
-        await getSupabase().from("telegram_chats").upsert(
+        const db = await getSupabase();
+        await db.from("telegram_chats").upsert(
           {
             chat_id: chat.id,
             telegram_username: chat.username ?? null,

@@ -31,7 +31,7 @@ async function run(): Promise<Response> {
   const { data: chats, error } = await db.from("telegram_chats").select("chat_id");
   if (error || !chats || chats.length === 0) return Response.json({ ok: true, sent: 0 });
 
-  const text = GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
+  const text = GREETINGS[Math.floor(Math.random() * GREETINGS.length)] ?? GREETINGS[0]!;
   await Promise.all(
     chats.map((c) =>
       sendTelegramMessage(String(c.chat_id), text).catch(() => null),
