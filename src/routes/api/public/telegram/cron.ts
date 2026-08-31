@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { getSupabase } from "@/lib/telegram.server";
+import { getSupabase, sendTelegramMessage } from "@/lib/telegram.server";
 
 const GREETINGS = [
   "Salam! 👋 Ders vaxtıdır — bugünkü dərsini izləməyi unutma!",
@@ -8,25 +8,27 @@ const GREETINGS = [
   "Görevini yoxla ✍️ Bu günkü tapşırığını göndərməyi unutma!",
   "Kiçik addımlar böyük nəticələr gətirir 🚀 Bu gün 10 dəqiqə belə izlə!",
   "Dərs seriyani davam etdir 💪 İzini itirmə, bu gün də irəlilə!",
+  "Davam et! 🎯 Hər dərs səni hədəfə bir addım daha yaxınlaşdırır.",
+  "Bugün də məzuniyyət yoxdur 😄 Dərsini aç və 10 dəqiqə izlə!",
+  "Sən bacarırsan! 💡 Qaldığın yerdən davam et, nəticə göz oxşayacaq.",
 ];
 
-/**
- * Cron (pg_cron) bu endpoint'i düzenli çağırır; her öğrenciye hatırlatma mesajı gider.
- * Güvenlik: x-telegram-cron-secret başlığı veritabanındaki gizli değerle eşleşmelidir.
- */
 export const Route = createFileRoute("/api/public/telegram/cron")({
   server: {
     handlers: {
-      POST: async () => run(),
-      GET: async () => run(),
+      POST: async ({ request }) => run(request),
+      GET: async ({ request }) => run(request),
     },
   },
 });
 
-async function run(): Promise<Response> {
+async function run(request: Request): Promise<Response> {
   const db = await getSupabase();
   const { data: cfg } = await db.from("telegram_config").select("cron_secret").limit(1).maybeSingle();
   if (!cfg) return new Response("Not configured", { status: 500 });
+
+  const provided = request.headers.get("x-cron-secret") ?? "";
+  if (provided !== cfg.cron_secret) return new Response("Unauthorized", { status: 401 });
 
   const { data: chats, error } = await db.from("telegram_chats").select("chat_id");
   if (error || !chats || chats.length === 0) return Response.json({ ok: true, sent: 0 });
@@ -38,20 +40,4 @@ async function run(): Promise<Response> {
     ),
   );
   return Response.json({ ok: true, sent: chats.length });
-}
-
-async function sendTelegramMessage(chatId: string, text: string) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  void supabaseAdmin;
-  const token = process.env["TELEGRAM_API_KEY"];
-  if (!token) return;
-  await fetch("https://connector-gateway.lovable.dev/telegram/sendMessage", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env["LOVABLE_API_KEY"]}`,
-      "X-Connection-Api-Key": token,
-    },
-    body: JSON.stringify({ chat_id: chatId, text }),
-  });
 }
