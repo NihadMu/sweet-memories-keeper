@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LoginCard } from "@/components/LoginCard";
 import { ALL_LESSONS, COURSE_TITLE, MODULES, formatDuration } from "@/lib/course";
 import { getMyProgress, getMySubmissions, login, saveProgress, submitTask } from "@/lib/course.functions";
-import { useDailyReminders } from "@/lib/reminders";
 import { useSession } from "@/lib/useSession";
 
 export const Route = createFileRoute("/")({
@@ -35,7 +34,6 @@ type ProgressRow = {
 
 function Home() {
   const { session, ready, save, clear } = useSession();
-  const reminders = useDailyReminders(session?.username ?? "ogrenci");
   const navigate = useNavigate();
   const [progress, setProgress] = useState<Record<string, ProgressRow>>({});
   const [activeId, setActiveId] = useState(ALL_LESSONS[0]!.id);

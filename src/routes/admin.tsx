@@ -105,10 +105,6 @@ function AdminPage() {
         {rows.map((row) => {
           const percent = Math.round((row.completedCount / row.totalLessons) * 100);
           const open = openUser === row.userId;
-          const phoneDigits = row.phone?.replace(/[^\d]/g, "") ?? "";
-          const waText = encodeURIComponent(
-            `Salam ${row.username}! 👋 Dersə davam etməyi unutma. Bu gün ${row.completedCount}/${row.totalLessons} dersi tamamlamısan — qaldığın yerdən davam et! 💪`,
-          );
           return (
             <div key={row.userId} className="rounded-xl border border-border bg-card p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
