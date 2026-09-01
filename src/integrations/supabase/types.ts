@@ -123,6 +123,7 @@ export type Database = {
           chat_id: number
           created_at: string
           first_name: string | null
+          phone: string | null
           telegram_username: string | null
         }
         Insert: {
@@ -130,6 +131,7 @@ export type Database = {
           chat_id: number
           created_at?: string
           first_name?: string | null
+          phone?: string | null
           telegram_username?: string | null
         }
         Update: {
@@ -137,6 +139,7 @@ export type Database = {
           chat_id?: number
           created_at?: string
           first_name?: string | null
+          phone?: string | null
           telegram_username?: string | null
         }
         Relationships: []
