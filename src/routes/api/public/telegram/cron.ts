@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { getSupabase, sendTelegramMessage } from "@/lib/telegram.server";
 
+const SITE_URL = "https://metacoursetimeflty.lovable.app";
+
 const GREETINGS = [
   "Salam! 👋 Ders vaxtıdır — bugünkü dərsini izləməyi unutma!",
   "Xatırlatma 📚 Bu günkü dərsini tamamladınmı? Qaldığın yerdən davam et!",
@@ -11,7 +13,7 @@ const GREETINGS = [
   "Davam et! 🎯 Hər dərs səni hədəfə bir addım daha yaxınlaşdırır.",
   "Bugün də məzuniyyət yoxdur 😄 Dərsini aç və 10 dəqiqə izlə!",
   "Sən bacarırsan! 💡 Qaldığın yerdən davam et, nəticə göz oxşayacaq.",
-];
+].map((m) => `${m}\n\n🔗 ${SITE_URL}`);
 
 export const Route = createFileRoute("/api/public/telegram/cron")({
   server: {
