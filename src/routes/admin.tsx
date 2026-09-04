@@ -108,8 +108,10 @@ function AdminPage() {
           title: msgTitle.trim() || undefined,
           message: msgText.trim(),
           includeLink,
+          lessonId: lessonId || undefined,
         },
       });
+
       setSendMsg(`${res.sent} kişiye gönderildi${res.failed ? `, ${res.failed} başarısız` : ""}.`);
       setMsgText("");
       setMsgTitle("");
