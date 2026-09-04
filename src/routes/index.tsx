@@ -53,6 +53,12 @@ function Home() {
   }, []);
 
   useEffect(() => {
+    const wanted = new URLSearchParams(window.location.search).get("ders");
+    if (wanted && ALL_LESSONS.some((l) => l.id === wanted)) setActiveId(wanted);
+  }, []);
+
+  useEffect(() => {
+
     if (!session) return;
     if (session.admin) {
       navigate({ to: "/admin" });
