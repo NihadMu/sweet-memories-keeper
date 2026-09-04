@@ -69,6 +69,8 @@ function AdminPage() {
   const [msgTitle, setMsgTitle] = useState("");
   const [msgText, setMsgText] = useState("");
   const [includeLink, setIncludeLink] = useState(true);
+  const [lessonId, setLessonId] = useState("");
+
   const [sending, setSending] = useState(false);
   const [sendMsg, setSendMsg] = useState<string | null>(null);
 
@@ -108,8 +110,10 @@ function AdminPage() {
           title: msgTitle.trim() || undefined,
           message: msgText.trim(),
           includeLink,
+          lessonId: lessonId || undefined,
         },
       });
+
       setSendMsg(`${res.sent} kişiye gönderildi${res.failed ? `, ${res.failed} başarısız` : ""}.`);
       setMsgText("");
       setMsgTitle("");
@@ -197,6 +201,19 @@ function AdminPage() {
             ))}
           </div>
 
+          <select
+            value={lessonId}
+            onChange={(e) => setLessonId(e.target.value)}
+            className="mt-3 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+          >
+            <option value="">Video seçilmedi (opsiyonel)</option>
+            {ALL_LESSONS.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.moduleTitle} · {l.title}
+              </option>
+            ))}
+          </select>
+
           <input
             value={msgTitle}
             onChange={(e) => setMsgTitle(e.target.value)}
@@ -204,6 +221,7 @@ function AdminPage() {
             className="mt-3 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
           />
           <textarea
+
             value={msgText}
             onChange={(e) => setMsgText(e.target.value)}
             rows={4}
