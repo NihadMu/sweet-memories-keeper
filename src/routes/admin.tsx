@@ -3,7 +3,41 @@ import { useCallback, useEffect, useState } from "react";
 
 import { ALL_LESSONS, COURSE_TITLE, formatDuration } from "@/lib/course";
 import { getAdminOverview, getAdminSubmissions } from "@/lib/course.functions";
+import { getTelegramChats, sendTelegramTask } from "@/lib/telegram.functions";
 import { useSession } from "@/lib/useSession";
+
+const TASK_TEMPLATES = [
+  {
+    label: "Bölümü tamamla",
+    title: "Günlük Görev",
+    text: "Bugün en az 1 bölümü izleyip tamamla ve görev cevabını siteden gönder.",
+  },
+  {
+    label: "Satış toplantısı provası",
+    title: "Görev: Satış Toplantısı",
+    text: "Satış toplantısı senaryosunu baştan sona sesli prova et ve kaydını görev alanına yükle.",
+  },
+  {
+    label: "Onboarding dosyası",
+    title: "Görev: Onboarding",
+    text: "Bir müşteri için Drive klasörü ve onboarding dokümanını hazırla, bağlantısını gönder.",
+  },
+  {
+    label: "Hedef kitle çalışması",
+    title: "Görev: Hedef Kitle",
+    text: "Seçtiğin bir işletme için 3 farklı hedef kitle oluştur ve neden seçtiğini yaz.",
+  },
+  {
+    label: "Kreatif üretimi",
+    title: "Görev: Kreatif",
+    text: "2 farklı reklam kreatifi hazırla, metinleriyle birlikte görev alanından gönder.",
+  },
+  {
+    label: "Hatırlatma",
+    title: "Hatırlatma",
+    text: "Bugün eğitime devam etmeyi unutma. Küçük adımlar büyük fark yaratır 💪",
+  },
+];
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
