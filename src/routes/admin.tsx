@@ -64,19 +64,61 @@ function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [openUser, setOpenUser] = useState<string | null>(null);
   const [subs, setSubs] = useState<Submissions>([]);
+  const [chats, setChats] = useState<Awaited<ReturnType<typeof getTelegramChats>>>([]);
+  const [selected, setSelected] = useState<number[]>([]);
+  const [msgTitle, setMsgTitle] = useState("");
+  const [msgText, setMsgText] = useState("");
+  const [includeLink, setIncludeLink] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [sendMsg, setSendMsg] = useState<string | null>(null);
 
   const load = useCallback(async (token: string) => {
     try {
-      const [overview, submissions] = await Promise.all([
+      const [overview, submissions, telegramChats] = await Promise.all([
         getAdminOverview({ data: { token } }),
         getAdminSubmissions({ data: { token } }),
+        getTelegramChats({ data: { token } }),
       ]);
       setRows(overview);
       setSubs(submissions);
+      setChats(telegramChats);
+      setSelected(telegramChats.map((c) => c.chat_id));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Veriler yüklenemedi.");
     }
   }, []);
+
+  async function send() {
+    if (!session) return;
+    if (selected.length === 0) {
+      setSendMsg("En az bir öğrenci seçin.");
+      return;
+    }
+    if (msgText.trim().length < 2) {
+      setSendMsg("Mesaj yazın veya hazır görev seçin.");
+      return;
+    }
+    setSending(true);
+    setSendMsg(null);
+    try {
+      const res = await sendTelegramTask({
+        data: {
+          token: session.token,
+          chatIds: selected,
+          title: msgTitle.trim() || undefined,
+          message: msgText.trim(),
+          includeLink,
+        },
+      });
+      setSendMsg(`${res.sent} kişiye gönderildi${res.failed ? `, ${res.failed} başarısız` : ""}.`);
+      setMsgText("");
+      setMsgTitle("");
+    } catch (e) {
+      setSendMsg(e instanceof Error ? e.message : "Gönderilemedi.");
+    } finally {
+      setSending(false);
+    }
+  }
 
   useEffect(() => {
     if (!ready) return;
