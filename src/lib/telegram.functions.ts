@@ -28,16 +28,23 @@ export const sendTelegramTask = createServerFn({ method: "POST" })
         title: z.string().max(200).optional(),
         message: z.string().min(2).max(3000),
         includeLink: z.boolean().optional().default(true),
+        lessonId: z.string().optional(),
       })
       .parse(data),
   )
   .handler(async ({ data }) => {
     requireAdmin(data.token);
     const { sendTelegramMessage } = await import("./telegram.server");
+    const { ALL_LESSONS } = await import("./course");
+    const lesson = data.lessonId ? ALL_LESSONS.find((l) => l.id === data.lessonId) : undefined;
+    const lessonLine = lesson
+      ? `🎬 İzlenecek bölüm: ${lesson.title}\n${SITE_URL}/?ders=${lesson.id}`
+      : null;
     const text = [
       data.title ? `📌 ${data.title}` : null,
       data.message,
-      data.includeLink ? `\n🔗 ${SITE_URL}` : null,
+      lessonLine,
+      data.includeLink && !lessonLine ? `\n🔗 ${SITE_URL}` : null,
     ]
       .filter(Boolean)
       .join("\n\n");
@@ -48,3 +55,4 @@ export const sendTelegramTask = createServerFn({ method: "POST" })
     const sent = results.filter((r) => r.ok).length;
     return { sent, failed: results.length - sent };
   });
+
