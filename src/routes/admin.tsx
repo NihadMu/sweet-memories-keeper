@@ -150,6 +150,88 @@ function AdminPage() {
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
         <section className="rounded-xl border border-border bg-card p-5">
+          <h2 className="font-semibold">Telegram ile görev gönder</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Hazır bir görev seç ya da kendi mesajını yaz, seçtiğin öğrencilere Telegram'dan gitsin.
+          </p>
+
+          {chats.length === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">
+              Henüz kayıtlı Telegram sohbeti yok. Öğrenci botu açıp bir kez /start yazmalı.
+            </p>
+          ) : (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {chats.map((c) => {
+                const on = selected.includes(c.chat_id);
+                return (
+                  <button
+                    key={c.chat_id}
+                    onClick={() =>
+                      setSelected((prev) =>
+                        on ? prev.filter((id) => id !== c.chat_id) : [...prev, c.chat_id],
+                      )
+                    }
+                    className={`rounded-full border px-3 py-1.5 text-sm ${
+                      on ? "border-primary bg-primary/10 text-primary" : "border-border hover:bg-muted"
+                    }`}
+                  >
+                    {c.assigned_student ?? c.first_name ?? c.telegram_username ?? c.chat_id}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {TASK_TEMPLATES.map((t) => (
+              <button
+                key={t.label}
+                onClick={() => {
+                  setMsgTitle(t.title);
+                  setMsgText(t.text);
+                }}
+                className="rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-muted"
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          <input
+            value={msgTitle}
+            onChange={(e) => setMsgTitle(e.target.value)}
+            placeholder="Başlık (opsiyonel)"
+            className="mt-3 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+          />
+          <textarea
+            value={msgText}
+            onChange={(e) => setMsgText(e.target.value)}
+            rows={4}
+            placeholder="Görev / mesaj metni…"
+            className="mt-2 w-full rounded-lg border border-border bg-background p-3 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+          />
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <label className="flex items-center gap-2 text-sm text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={includeLink}
+                onChange={(e) => setIncludeLink(e.target.checked)}
+              />
+              Site linkini ekle
+            </label>
+            <button
+              onClick={() => void send()}
+              disabled={sending}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
+            >
+              {sending ? "Gönderiliyor…" : "Telegram'dan Gönder"}
+            </button>
+            {sendMsg ? <span className="text-sm text-muted-foreground">{sendMsg}</span> : null}
+          </div>
+        </section>
+
+
+        <section className="rounded-xl border border-border bg-card p-5">
           <h2 className="font-semibold">Gönderilen görevler</h2>
           {subs.length === 0 ? (
             <p className="mt-2 text-sm text-muted-foreground">Henüz görev gönderilmedi.</p>
